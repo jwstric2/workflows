@@ -9,21 +9,11 @@ on:
         type: string
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.setVariables.outputs.matrix }}
-    steps:
-      - id: setVariables
-        run: |
-          echo "::set-output name=matrix::$input"
-        env:
-          input: ${{ inputs.ruby-versions }}
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ${{fromJson(needs.setup.outputs.matrix)}}
+        ruby-version: ${{ fromJson( inputs.ruby-versions ) }}
 
     steps:
     - uses: actions/checkout@v3
