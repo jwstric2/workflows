@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Validate Lint
-      uses: ./.github/workflows/lint-pr.yml
+      uses: jwstric2/workflows/.github/workflows/lint-pr.yml
       if: ${{ github.event_name == 'pull_request' }}    
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
