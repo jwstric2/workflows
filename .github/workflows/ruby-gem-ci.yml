@@ -16,11 +16,10 @@ jobs:
         ruby-version: ${{ fromJson( inputs.ruby-versions ) }}
 
     steps:
+    - uses: actions/checkout@v3
     - name: Validate Lint
       uses: ./.github/workflows/lint-pr.yml
-      if: ${{ github.event_name == 'pull_request' }}
-    
-    - uses: actions/checkout@v3
+      if: ${{ github.event_name == 'pull_request' }}    
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
     # change this to (see https://github.com/ruby/setup-ruby#versioning):
