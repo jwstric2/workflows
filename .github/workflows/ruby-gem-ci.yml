@@ -9,13 +9,17 @@ on:
         type: string
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         ruby-version: ${{ fromJson( inputs.ruby-versions ) }}
 
     steps:
+    - name: Validate Lint
+      uses: ./.github/workflows/lint-pr.yml
+      if: ${{ github.event_name == 'pull_request' }}
+    
     - uses: actions/checkout@v3
     - name: Set up Ruby
     # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
