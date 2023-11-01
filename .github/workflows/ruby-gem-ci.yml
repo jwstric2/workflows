@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  workflow_call:
+    inputs:
+      ruby-versions:
+        description: Ruby Test Versions
+        required: true
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.setVariables.outputs.matrix }}
+    steps:
+      - id: setVariables
+        run: |
+          echo "::set-output name=matrix::$input"
+        env:
+          input: ${{ inputs.ruby-versions }}
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ${{fromJson(needs.setup.outputs.matrix)}}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+    # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
+    # change this to (see https://github.com/ruby/setup-ruby#versioning):
+      uses: ruby/setup-ruby@v1.146.0
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Run tests
+      run: bundle exec rake
