@@ -14,7 +14,7 @@ on:
           type: string
 
 jobs:
-  release-please:
+  release:
     runs-on: ubuntu-latest
       
     steps:
