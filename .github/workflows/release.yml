@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+      
+    steps:
+      # Uses release-please-action    
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          # Personal Access Token.  We do not use the default token action app token as
+          # it will upon creating the branch not allow the ci jobs to be kicked off
+          # See https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+          token: ${{ secrets.RELEASE_PLEASE_GITHUB_TOKEN }}
+          # release type
+          release-type: simple
+
+      # We will set auto merge on PR
+      - name: Get er done
+        run: |          
+          echo "PR IS ${{ steps.release.outputs.pr }}"
+          
+      # Checkout the Repository if a release has been created.  
+      - uses: actions/checkout@v2
+        if: ${{ steps.release.outputs.release_created }}
+        
+      - name: tag major versions so teams can get the latest major workflows
+        if: ${{ steps.release.outputs.release_created }}
+        run: |          
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          : # Delete the local tag
+          git tag -d v${{ steps.release.outputs.major }} || true
+          : # Remove the old tag in the repo
+          git push origin :v${{ steps.release.outputs.major }} || true
+          : # Add new annotated tag
+          git tag -a v${{ steps.release.outputs.major }} -m "Release v${{ steps.release.outputs.major }}"
+          : # Push new annotated tag
+          git push origin v${{ steps.release.outputs.major }}
+      
