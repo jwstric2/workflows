@@ -1,0 +1,45 @@
+name: 'Login to ECR'
+description: 'Login to ECR'
+author: 'Ops'
+inputs:
+  aws-region:
+    description: 'AWS Region'
+    required: true
+    default: 'us-east-1'
+  aws-account-id:
+    description: 'AWS Account ID, default to SVV hub'
+    required: false
+    default: '925998874146'
+  readonly:
+    description: 'Readonly to ECR repositories or not'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set the account role to assume
+      id: set-account-role
+      run: |
+        if [ "${{ inputs.readonly }}" == "true" ]; then
+          echo ::set-env name=ROLE-NAME::$(echo GHA_${GITHUB_REPOSITORY%/*})
+        else
+          echo ::set-env name=ROLE-NAME::$(echo GHA_${GITHUB_REPOSITORY%/*}_${GITHUB_REPOSITORY#*/} | cut -c1-64)
+        fi
+      shell: bash
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ env.ROLE-NAME }}
+        role-session-name: GH_to_AWS_via_FederatedOIDC_${{ env.ROLE-NAME }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: Sts GetCallerIdentity
+      run: |
+        aws sts get-caller-identity
+      shell: bash
+    - name: Login AWS ECR
+      run: |
+        aws ecr get-login-password \
+        | docker login --username AWS --password-stdin \
+            ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      shell: bash
