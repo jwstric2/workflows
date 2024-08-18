@@ -23,15 +23,10 @@ jobs:
           # release type
           release-type: simple
 
-      # We will set auto merge on PR
-      - name: Get er done
-        run: |          
-          echo "PR IS ${{ steps.release.outputs.pr }}"
-          
       # Checkout the Repository if a release has been created.  
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: ${{ steps.release.outputs.release_created }}
-        
+
       - name: tag major versions so teams can get the latest major workflows
         if: ${{ steps.release.outputs.release_created }}
         run: |          
