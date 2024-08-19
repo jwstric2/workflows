@@ -22,9 +22,9 @@ runs:
       id: set-account-role
       run: |
         if [ "${{ inputs.readonly }}" == "true" ]; then
-          echo ::set-env name=ROLE-NAME::$(echo GHA_${GITHUB_REPOSITORY%/*})
+          echo ROLE-NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}) >> $GITHUB_ENV
         else
-          echo ::set-env name=ROLE-NAME::$(echo GHA_${GITHUB_REPOSITORY%/*}_${GITHUB_REPOSITORY#*/} | cut -c1-64)
+          echo ROLE-NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_${GITHUB_REPOSITORY#*/} | cut -c1-64) >> $GITHUB_ENV
         fi
       shell: bash
     - name: configure aws credentials
