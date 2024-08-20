@@ -1,0 +1,21 @@
+name: 'Build and Push Images'
+description: 'Build and Push Images'
+author: 'Ops'
+inputs:
+  aws-region:
+    description: 'AWS Region'
+    required: true
+    default: 'us-east-1'
+  aws-account-id:
+    description: 'AWS Account ID, default to SVV hub'
+    required: false
+    default: '925998874146'
+runs:
+  using: 'composite'
+  steps:
+    - name: configure aws credentials
+      uses: ./github/actions/login-ecr
+      with:
+        aws-region: ${{ inputs.aws-region }}
+        aws-account-id: ${{ inputs.aws-account-id }}
+        write-access: true
