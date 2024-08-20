@@ -14,7 +14,7 @@ runs:
   using: 'composite'
   steps:
     - name: configure aws credentials
-      uses: ./github/actions/login-ecr
+      uses: jwstric2/workflows/.github/actions/login-ecr@feature/more_stuff
       with:
         aws-region: ${{ inputs.aws-region }}
         aws-account-id: ${{ inputs.aws-account-id }}
