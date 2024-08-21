@@ -46,7 +46,7 @@ runs:
       shell: bash
     - name: Login Public AWS ECR
       run: |
-        aws ecr get-login-password \
+        aws ecr-public get-login-password \
         | docker login --username AWS --password-stdin \
             public.ecr.aws
       shell: bash
