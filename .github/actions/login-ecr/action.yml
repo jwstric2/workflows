@@ -22,9 +22,9 @@ runs:
       id: set-account-role
       run: |
         if [ "${{ inputs.write-access }}" == "true" ]; then
-          echo PRIVATE_ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_WRITER) >> $GITHUB_ENV
+          echo ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_WRITER) >> $GITHUB_ENV
         else
-          echo PRIVATE_ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_READER) >> $GITHUB_ENV
+          echo ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_READER) >> $GITHUB_ENV
         fi
       shell: bash
     - name: configure aws credentials
@@ -32,15 +32,21 @@ runs:
       with:
         aws-region: ${{ inputs.aws-region }}
         retry-max-attempts: 3
-        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ env.PRIVATE_ROLE_NAME }}
-        role-session-name: GH_to_AWS_via_FederatedOIDC_${{ env.ROLE-NAME }}
+        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ env.ROLE_NAME }}
+        role-session-name: GH_to_AWS_via_FederatedOIDC_${{ env.ROLE_NAME }}
     - name: Sts GetCallerIdentity
       run: |
         aws sts get-caller-identity
       shell: bash
-    - name: Login AWS ECR
+    - name: Login Private AWS ECR
       run: |
         aws ecr get-login-password \
         | docker login --username AWS --password-stdin \
             ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      shell: bash
+    - name: Login Public AWS ECR
+      run: |
+        aws ecr get-login-password \
+        | docker login --username AWS --password-stdin \
+            public.ecr.aws
       shell: bash
