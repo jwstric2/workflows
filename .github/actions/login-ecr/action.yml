@@ -28,8 +28,8 @@ runs:
     - name: Set endpoints
       id: set-endpoints
       run: |
-        echo private-ecr-registry=$(echo ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com) >> $GITHUB_OUTPUT"
-        echo public-ecr-registry=$(echo public.ecr.aws) >> $GITHUB_OUTPUT"
+        echo private-ecr-registry=$(echo ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com) >> $GITHUB_OUTPUT
+        echo public-ecr-registry=$(echo public.ecr.aws) >> $GITHUB_OUTPUT
       shell: bash
     - name: Set the account role to assume
       id: set-account-role
