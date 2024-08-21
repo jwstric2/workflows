@@ -1,5 +1,5 @@
 name: 'Login to ECR'
-description: 'Login to ECR'
+description: 'Login to ECR public and private repositories'
 author: 'Ops'
 inputs:
   aws-region:
@@ -11,7 +11,7 @@ inputs:
     required: false
     default: '925998874146'
   write-access:
-    description: 'Readonly to ECR repositories or not'
+    description: 'Write Access to Private ECR repositories'
     required: false
     default: 'false'
 
@@ -22,9 +22,9 @@ runs:
       id: set-account-role
       run: |
         if [ "${{ inputs.write-access }}" == "true" ]; then
-          echo ROLE-NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_WRITER) >> $GITHUB_ENV
+          echo PRIVATE_ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_WRITER) >> $GITHUB_ENV
         else
-          echo ROLE-NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_READER) >> $GITHUB_ENV
+          echo PRIVATE_ROLE_NAME=$(echo GHA_${GITHUB_REPOSITORY%/*}_READER) >> $GITHUB_ENV
         fi
       shell: bash
     - name: configure aws credentials
@@ -32,7 +32,7 @@ runs:
       with:
         aws-region: ${{ inputs.aws-region }}
         retry-max-attempts: 3
-        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ env.ROLE-NAME }}
+        role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ env.PRIVATE_ROLE_NAME }}
         role-session-name: GH_to_AWS_via_FederatedOIDC_${{ env.ROLE-NAME }}
     - name: Sts GetCallerIdentity
       run: |

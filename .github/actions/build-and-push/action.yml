@@ -18,4 +18,4 @@ runs:
       with:
         aws-region: ${{ inputs.aws-region }}
         aws-account-id: ${{ inputs.aws-account-id }}
-        write-access: true
+        write-access: false
