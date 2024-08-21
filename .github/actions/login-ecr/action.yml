@@ -14,10 +14,23 @@ inputs:
     description: 'Write Access to Private ECR repositories'
     required: false
     default: 'false'
+outputs:
+  private-ecr-registry:
+    description: "Private registry"
+    value: ${{ steps.set-endpoints.outputs.private-ecr-registry }}
+  public-ecr-registry:
+    description: "Public registry"
+    value: ${{ steps.set-endpoints.outputs.public-ecr-registry }} 
 
 runs:
   using: 'composite'
   steps:
+    - name: Set endpoints
+      id: set-endpoints
+      run: |
+        echo private-ecr-registry=$(echo ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com) >> $GITHUB_OUTPUT"
+        echo public-ecr-registry=$(echo public.ecr.aws) >> $GITHUB_OUTPUT"
+      shell: bash
     - name: Set the account role to assume
       id: set-account-role
       run: |
@@ -42,11 +55,11 @@ runs:
       run: |
         aws ecr get-login-password \
         | docker login --username AWS --password-stdin \
-            ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+            ${{ steps.set-endpoints.outputs.private-ecr-registry }}
       shell: bash
     - name: Login Public AWS ECR
       run: |
         aws ecr-public get-login-password \
         | docker login --username AWS --password-stdin \
-            public.ecr.aws
+            ${{ steps.set-endpoints.outputs.public-ecr-registry }}
       shell: bash
